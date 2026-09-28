@@ -28,7 +28,7 @@ function Header({ page, setPage }: { page: Page; setPage: (p: Page) => void }) {
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <button onClick={() => setPage("home")} className="flex items-center gap-2 font-black text-xl text-emerald-700">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-600 text-white">+</span> Medilink
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-600 text-white">+</span> MediLink
         </button>
         <nav className="hidden gap-1 md:flex">
           {links.map(([id, label]) => <button key={id} onClick={() => setPage(id)} className={`rounded-lg px-3 py-2 text-sm font-semibold ${page === id ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-100"}`}>{label}</button>)}
