@@ -1,4 +1,5 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { supabase } from "../lib/supabase-browser";
 
 type Page = "home" | "find" | "hospitals" | "queue" | "meds" | "blood" | "lab" | "maternal" | "register";
 
@@ -33,7 +34,36 @@ function Header({ page, setPage }: { page: Page; setPage: (p: Page) => void }) {
         <nav className="hidden gap-1 md:flex">
           {links.map(([id, label]) => <button key={id} onClick={() => setPage(id)} className={`rounded-lg px-3 py-2 text-sm font-semibold ${page === id ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-100"}`}>{label}</button>)}
         </nav>
-        <button onClick={() => setPage("register")} className="btn-primary text-sm">Register facility</button>
+        <div className="flex items-center gap-2">
+  {authLoading ? (
+    <span className="text-sm text-slate-400">Loading...</span>
+  ) : userEmail ? (
+    <>
+      <span className="hidden text-sm font-semibold text-slate-600 md:block">
+        {userEmail}
+      </span>
+
+      <button
+        onClick={handleLogout}
+        className="btn-secondary text-sm"
+      >
+        Logout
+      </button>
+    </>
+  ) : (
+    <>
+      <a href="/auth" className="btn-secondary text-sm">
+        Login
+      </a>
+
+      <button
+        onClick={() => setPage("register")}
+        className="btn-primary text-sm"
+      >
+        Register facility
+      </button>
+    </>
+  )}
       </div>
     </header>
   );
@@ -57,6 +87,34 @@ function FacilityCard({ f, setPage }: { f: Facility; setPage: (p: Page) => void 
 
 export default function Home() {
   const [page, setPage] = useState<Page>("home");
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+    useEffect(() => {
+    async function loadUser() {
+      const { data } = await supabase.auth.getUser();
+
+      setUserEmail(data.user?.email ?? null);
+      setAuthLoading(false);
+    }
+
+    loadUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user?.email ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setUserEmail(null);
+    notify("You have been logged out.");
+  }
   const [language, setLanguage] = useState<"EN" | "SW">("EN");
   const [lowData, setLowData] = useState(false);
   const [selectedSymptom, setSelectedSymptom] = useState("Fever");
@@ -91,7 +149,7 @@ export default function Home() {
           <div className="max-w-3xl">
             <p className="mb-3 font-bold text-emerald-100">Healthcare access, simplified</p>
             <h1 className="text-4xl font-black tracking-tight md:text-6xl">Find the right care when you need it.</h1>
-            <p className="mt-5 max-w-2xl text-lg text-emerald-50">AfyaConnect helps people discover healthcare facilities, understand care options, manage basic health tasks and reach emergency support.</p>
+            <p className="mt-5 max-w-2xl text-lg text-emerald-50">MediLink helps people discover healthcare facilities, understand care options, manage basic health tasks and reach emergency support.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <button onClick={() => setPage("find")} className="btn bg-white text-emerald-700 hover:bg-emerald-50">Find care</button>
               <button onClick={() => setPage("hospitals")} className="btn bg-emerald-800 text-white hover:bg-emerald-900">Browse facilities</button>
@@ -161,7 +219,7 @@ export default function Home() {
           <button onClick={()=>setPage("lab")} className="btn-secondary">Lab glossary</button>
           <button onClick={()=>setPage("maternal")} className="btn-secondary">MaternalCare</button>
         </div>
-        <p className="mt-5 text-xs text-slate-400">AfyaConnect MVP · For demonstration and product development. Health information here is general and not a diagnosis.</p>
+        <p className="mt-5 text-xs text-slate-400">MediLink MVP · For demonstration and product development. Health information here is general and not a diagnosis.</p>
       </section>
     </main>
   </div>;
