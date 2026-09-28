@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { supabase } from "../lib/supabase-browser";
+import { supabase } from "../lib/supabase-browser.ts";
 
 type Page = "home" | "find" | "hospitals" | "queue" | "meds" | "blood" | "lab" | "maternal" | "register";
 
