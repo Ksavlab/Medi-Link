@@ -1,4 +1,4 @@
-# Healthconnect
+# Afyaconnect
 
 A runnable healthcare-access MVP built with Next.js, React, TypeScript and Tailwind CSS.
 
